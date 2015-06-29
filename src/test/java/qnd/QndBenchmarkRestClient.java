@@ -1,66 +1,97 @@
-//package qnd;
-//
-//import java.util.Random;
-//
-//import org.apache.commons.lang3.StringUtils;
-//import org.apache.thrift.transport.TTransportException;
-//
-//import test.utils.Benchmark;
-//import test.utils.BenchmarkResult;
-//import test.utils.Operation;
-//
-//import com.github.btnguyen2k.queue.jclient.IQueueClient;
-//import com.github.btnguyen2k.queue.jclient.impl.RestQueueClientFactory;
-//
-//public class QndBenchmarkRestClient extends BaseQndThriftClient {
-//
-//    private static final Random RANDOM = new Random(System.currentTimeMillis());
-//
-//    private static void runTest(final IQueueClient client, final int numRuns, final int numThreads)
-//            throws TTransportException {
-//        BenchmarkResult result = new Benchmark(new Operation() {
-//            @Override
-//            public void run(int runId) {
-//                String item1 = String.valueOf(RANDOM.nextInt(numRuns) * 2);
-//                client.mightContain(item1);
-//            }
-//        }, numRuns, numThreads).run();
-//        System.out.println(result.summarize());
-//    }
-//
-//    /**
-//     * @param args
-//     * @throws TTransportException
-//     */
-//    public static void main(String[] args) throws TTransportException {
-//        String bloomServerUrl = System.getProperty("bloomServerUrl");
-//        if (StringUtils.isBlank(bloomServerUrl)) {
-//            bloomServerUrl = "http://localhost:9000";
-//        }
-//
-//        int numRuns, numThreads;
-//
-//        try {
-//            numRuns = Integer.parseInt(System.getProperty("numRuns"));
-//        } catch (Exception e) {
-//            numRuns = 10000;
-//        }
-//        try {
-//            numThreads = Integer.parseInt(System.getProperty("numThreads"));
-//        } catch (Exception e) {
-//            numThreads = 4;
-//        }
-//
-//        IQueueClient client = RestQueueClientFactory.newQueueClient(bloomServerUrl);
-//        client.initBloom("s3cr3t", "default", numRuns, 1E-6, true, false, false);
-//        for (long l = 0; l < numRuns; l++) {
-//            client.put(String.valueOf(l));
-//        }
-//
-//        for (int i = 0; i < 10; i++) {
-//            runTest(client, numRuns, numThreads);
-//        }
-//
-//        RestQueueClientFactory.cleanup();
-//    }
-//}
+package qnd;
+
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import com.github.btnguyen2k.queue.jclient.QueueResponse;
+import com.github.btnguyen2k.queue.jclient.impl.RestQueueClient;
+import com.github.btnguyen2k.queue.jclient.impl.RestQueueClientFactory;
+
+public class QndBenchmarkRestClient {
+    private static AtomicLong NUM_SENT = new AtomicLong(0);
+    private static AtomicLong NUM_TAKEN = new AtomicLong(0);
+    private static AtomicLong NUM_EXCEPTION = new AtomicLong(0);
+    private static ConcurrentMap<Object, Object> SENT = new ConcurrentHashMap<Object, Object>();
+    private static ConcurrentMap<Object, Object> RECEIVE = new ConcurrentHashMap<Object, Object>();
+    private static AtomicLong TIMESTAMP = new AtomicLong(0);
+    private static long NUM_ITEMS = 4096;
+    private static int NUM_THREADS = 4;
+
+    public static void main(String[] args) throws Exception {
+        final String SECRET = "s3cr3t";
+        final String QUEUE_NAME = "default";
+
+        final RestQueueClient queueClient = RestQueueClientFactory
+                .newQueueClient("http://localhost:9000");
+        QueueResponse response;
+
+        response = queueClient.initQueue(SECRET, QUEUE_NAME);
+        System.out.println("Init: " + response);
+        System.out.println();
+
+        response = queueClient.queueExists(SECRET, QUEUE_NAME);
+        System.out.println("Queue Exists: " + response);
+        System.out.println();
+
+        for (int i = 0; i < NUM_THREADS; i++) {
+            Thread t = new Thread() {
+                public void run() {
+                    while (true) {
+                        try {
+                            QueueResponse response = queueClient.take(SECRET, QUEUE_NAME);
+                            if (response != null && response.status == 200
+                                    && response.queueMessage != null) {
+                                queueClient.finish(SECRET, QUEUE_NAME, response.queueMessage);
+                                long numItems = NUM_TAKEN.incrementAndGet();
+                                if (numItems == NUM_ITEMS) {
+                                    TIMESTAMP.set(System.currentTimeMillis());
+                                }
+                                RECEIVE.put(new String(response.queueMessage.content), Boolean.TRUE);
+                            } else {
+                                try {
+                                    Thread.sleep(10);
+                                } catch (InterruptedException e) {
+                                }
+                            }
+                        } catch (Exception e) {
+                            NUM_EXCEPTION.incrementAndGet();
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
+            t.setDaemon(true);
+            t.start();
+        }
+
+        Thread.sleep(2000);
+
+        long t1 = System.currentTimeMillis();
+        for (int i = 0; i < NUM_ITEMS; i++) {
+            String content = "Content: [" + i + "] " + new Date();
+            queueClient.queue(SECRET, QUEUE_NAME, content.getBytes());
+            NUM_SENT.incrementAndGet();
+            SENT.put(content, Boolean.TRUE);
+        }
+        long t2 = System.currentTimeMillis();
+
+        while (NUM_TAKEN.get() < NUM_ITEMS) {
+            Thread.sleep(1);
+        }
+        System.out.println("Duration Queue: " + (t2 - t1));
+        System.out.println("Duration Take : " + (TIMESTAMP.get() - t1));
+        System.out.println("Num sent      : " + NUM_SENT.get());
+        System.out.println("Num taken     : " + NUM_TAKEN.get());
+        System.out.println("Num exception : " + NUM_EXCEPTION.get());
+        System.out.println("Sent size     : " + SENT.size());
+        System.out.println("Receive size  : " + RECEIVE.size());
+        System.out.println("Check         : " + SENT.equals(RECEIVE));
+
+        Thread.sleep(4000);
+        System.exit(-1);
+
+        RestQueueClientFactory.cleanup();
+    }
+}
