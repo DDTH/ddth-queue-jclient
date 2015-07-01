@@ -1,8 +1,10 @@
 package com.github.btnguyen2k.queue.jclient.impl;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -66,13 +68,17 @@ public class ThriftHttpQueueClient extends AbstractThriftQueueClient {
     }
 
     private static class MyTProtocolFactory extends AbstractTProtocolFactory {
-        public MyTProtocolFactory(String queueServerUrls) {
+        private HttpClient httpClient;
+
+        public MyTProtocolFactory(String queueServerUrls, HttpClient httpClient) {
             super(queueServerUrls);
+            this.httpClient = httpClient;
         }
 
         /**
          * {@inheritDoc}
          */
+        @Override
         protected void parseHostAndPortList() {
             String[] urlTokens = getHostsAndPorts().split("[,\\s]+");
 
@@ -88,10 +94,6 @@ public class ThriftHttpQueueClient extends AbstractThriftQueueClient {
          */
         @Override
         protected TProtocol create(HostAndPort hostAndPort) throws Exception {
-            SocketConfig config = SocketConfig.custom().setSoTimeout(10000).build();
-            CloseableHttpClient httpClient = HttpClients.custom().disableAuthCaching()
-                    .disableCookieManagement().setDefaultSocketConfig(config).build();
-            // .createMinimal();
             TTransport transport = new THttpClient(hostAndPort.host, httpClient);
             try {
                 transport.open();
@@ -109,28 +111,63 @@ public class ThriftHttpQueueClient extends AbstractThriftQueueClient {
      * Thrift-over-http client.
      * 
      * @param queueServerUrls
+     * @param httpClient
      * @return
      */
-    public static ITProtocolFactory protocolFactory(final String queueServerUrls) {
-        ITProtocolFactory protocolFactory = new MyTProtocolFactory(queueServerUrls);
+    public static ITProtocolFactory protocolFactory(final String queueServerUrls,
+            HttpClient httpClient) {
+        ITProtocolFactory protocolFactory = new MyTProtocolFactory(queueServerUrls, httpClient);
         return protocolFactory;
     }
+
+    private CloseableHttpClient httpClient;
+    private PoolingHttpClientConnectionManager connectionManager;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public ThriftHttpQueueClient init() {
+        connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setDefaultMaxPerRoute(16);
+        connectionManager.setMaxTotal(128);
+        SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(10000).build();
+        httpClient = HttpClients.custom().disableAuthCaching().disableCookieManagement()
+                .setDefaultSocketConfig(socketConfig).setConnectionManager(connectionManager)
+                .build();
+
         super.init();
 
         final int timeout = 10000;
         thriftClientPool = new ThriftClientPool<TQueueService.Client, TQueueService.Iface>();
         thriftClientPool.setClientClass(TQueueService.Client.class).setClientInterface(
                 TQueueService.Iface.class);
-        thriftClientPool.setTProtocolFactory(protocolFactory(thriftServerUrls));
+        thriftClientPool.setTProtocolFactory(protocolFactory(thriftServerUrls, httpClient));
         thriftClientPool.setPoolConfig(new PoolConfig().setMaxActive(32).setMaxWaitTime(timeout));
         thriftClientPool.init();
 
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy() {
+        if (httpClient != null) {
+            try {
+                httpClient.close();
+            } catch (Exception e) {
+            }
+        }
+
+        if (connectionManager != null) {
+            try {
+                connectionManager.shutdown();
+            } catch (Exception e) {
+            }
+        }
+
+        super.destroy();
     }
 }

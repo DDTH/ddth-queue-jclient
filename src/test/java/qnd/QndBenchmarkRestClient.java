@@ -17,7 +17,7 @@ public class QndBenchmarkRestClient {
     private static ConcurrentMap<Object, Object> RECEIVE = new ConcurrentHashMap<Object, Object>();
     private static AtomicLong TIMESTAMP = new AtomicLong(0);
     private static long NUM_ITEMS = 4096;
-    private static int NUM_THREADS = 4;
+    private static int NUM_THREADS = 8;
 
     public static void main(String[] args) throws Exception {
         final String SECRET = "s3cr3t";
@@ -77,7 +77,7 @@ public class QndBenchmarkRestClient {
         }
         long t2 = System.currentTimeMillis();
 
-        while (NUM_TAKEN.get() < NUM_ITEMS) {
+        while (NUM_TAKEN.get() < NUM_ITEMS && System.currentTimeMillis() - t1 <= 60000) {
             Thread.sleep(1);
         }
         System.out.println("Duration Queue: " + (t2 - t1));

@@ -17,8 +17,8 @@ public class QndBenchmarkThriftClient {
     private static ConcurrentMap<Object, Object> SENT = new ConcurrentHashMap<Object, Object>();
     private static ConcurrentMap<Object, Object> RECEIVE = new ConcurrentHashMap<Object, Object>();
     private static AtomicLong TIMESTAMP = new AtomicLong(0);
-    private static long NUM_ITEMS = 4096;
-    private static int NUM_THREADS = 4;
+    private static long NUM_ITEMS = 8192 * 10;
+    private static int NUM_THREADS = 8;
 
     public static void main(String[] args) throws Exception {
         final String SECRET = "s3cr3t";

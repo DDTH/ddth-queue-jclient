@@ -22,6 +22,12 @@ public class QndRestQueueClient {
         System.out.println("Queue Exists: " + response);
         System.out.println();
 
+        response = queueClient.take(SECRET, QUEUE_NAME);
+        System.out.println("Take 1: " + response);
+        System.out.println("Queue Size:" + queueClient.queueSize(SECRET, QUEUE_NAME));
+        System.out.println("Ephemeral Size:" + queueClient.ephemeralSize(SECRET, QUEUE_NAME));
+        System.out.println();
+
         byte[] content = "content".getBytes();
         response = queueClient.queue(SECRET, QUEUE_NAME, content);
         System.out.println("Queue: " + response);
@@ -30,7 +36,7 @@ public class QndRestQueueClient {
         System.out.println();
 
         response = queueClient.take(SECRET, QUEUE_NAME);
-        System.out.println("Take: " + response);
+        System.out.println("Take 2: " + response);
         System.out.println("Queue Size:" + queueClient.queueSize(SECRET, QUEUE_NAME));
         System.out.println("Ephemeral Size:" + queueClient.ephemeralSize(SECRET, QUEUE_NAME));
         System.out.println();

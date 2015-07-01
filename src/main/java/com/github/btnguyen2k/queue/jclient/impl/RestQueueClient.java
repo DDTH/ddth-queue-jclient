@@ -1,13 +1,19 @@
 package com.github.btnguyen2k.queue.jclient.impl;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import jodd.http.HttpRequest;
-import jodd.http.HttpResponse;
-
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +33,7 @@ import com.github.ddth.commons.utils.SerializationUtils;
  */
 public class RestQueueClient extends AbstractQueueClient {
 
+    private final static Charset UTF8 = Charset.forName("UTF8");
     private Logger LOGGER = LoggerFactory.getLogger(RestQueueClient.class);
 
     private String queueServerUrl;
@@ -51,32 +58,56 @@ public class RestQueueClient extends AbstractQueueClient {
         return this;
     }
 
-    private Map<String, Object> callApi(String url, Object data) {
-        return callApi(url, data, "POST");
+    private CloseableHttpClient httpClient;
+    private PoolingHttpClientConnectionManager connectionManager;
+
+    public RestQueueClient init() {
+        connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setDefaultMaxPerRoute(16);
+        connectionManager.setMaxTotal(128);
+        SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(10000).build();
+        httpClient = HttpClients.custom().disableAuthCaching().disableCookieManagement()
+                .setDefaultSocketConfig(socketConfig).setConnectionManager(connectionManager)
+                .build();
+
+        super.init();
+        return this;
+    }
+
+    public void destroy() {
+        if (httpClient != null) {
+            try {
+                httpClient.close();
+            } catch (Exception e) {
+            }
+        }
+
+        if (connectionManager != null) {
+            try {
+                connectionManager.shutdown();
+            } catch (Exception e) {
+            }
+        }
+
+        super.destroy();
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> callApi(String url, Object data, String method) {
+    private Map<String, Object> callApi(String url, Object data) {
         try {
-            HttpRequest httpRequest = StringUtils.equalsIgnoreCase("POST", method) ? HttpRequest
-                    .post(url) : HttpRequest.get(url);
-            if (data != null) {
-                httpRequest.body(SerializationUtils.toJsonString(data));
-            }
-            HttpResponse httpResponse = httpRequest.timeout(10000).send();
-            try {
-                if (httpResponse.statusCode() != 200) {
+            HttpPost httpPost = new HttpPost(url);
+            StringEntity requestEntity = new StringEntity(SerializationUtils.toJsonString(data),
+                    UTF8);
+            requestEntity.setContentType("application/json");
+            httpPost.setEntity(requestEntity);
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                if (response.getStatusLine().getStatusCode() != 200) {
                     return null;
                 }
-                int contentLength = Integer.parseInt(httpResponse.contentLength());
-                if (contentLength == 0 || contentLength > 1024) {
-                    LOGGER.warn("Invalid response length: " + contentLength);
-                    return null;
-                }
-                return SerializationUtils.fromJsonString(httpResponse.charset("UTF-8").bodyText(),
-                        Map.class);
-            } finally {
-                httpResponse.close();
+                HttpEntity entity = response.getEntity();
+                byte[] responseData = IOUtils.toByteArray(entity.getContent());
+                String content = new String(responseData, UTF8);
+                return SerializationUtils.fromJsonString(content, Map.class);
             }
         } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
