@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient.impl;
+package com.github.ddth.queue.jclient.impl;
 
 import java.util.concurrent.ExecutionException;
 

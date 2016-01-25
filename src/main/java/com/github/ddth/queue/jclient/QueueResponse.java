@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient;
+package com.github.ddth.queue.jclient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

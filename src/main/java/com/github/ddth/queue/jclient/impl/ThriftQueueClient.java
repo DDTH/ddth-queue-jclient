@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient.impl;
+package com.github.ddth.queue.jclient.impl;
 
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -7,8 +7,8 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
-import com.github.btnguyen2k.queue.jclient.IQueueClient;
 import com.github.btnguyen2k.queueserver.thrift.TQueueService;
+import com.github.ddth.queue.jclient.IQueueClient;
 import com.github.ddth.thriftpool.AbstractTProtocolFactory;
 import com.github.ddth.thriftpool.ITProtocolFactory;
 import com.github.ddth.thriftpool.PoolConfig;

@@ -5,10 +5,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.github.btnguyen2k.queue.jclient.QueueResponse;
-import com.github.btnguyen2k.queue.jclient.impl.RestQueueClientFactory;
-import com.github.btnguyen2k.queue.jclient.impl.ThriftQueueClient;
-import com.github.btnguyen2k.queue.jclient.impl.ThriftQueueClientFactory;
+import com.github.ddth.queue.jclient.QueueResponse;
+import com.github.ddth.queue.jclient.impl.RestQueueClientFactory;
+import com.github.ddth.queue.jclient.impl.ThriftQueueClient;
+import com.github.ddth.queue.jclient.impl.ThriftQueueClientFactory;
 
 public class QndBenchmarkThriftClient {
     private static AtomicLong NUM_SENT = new AtomicLong(0);

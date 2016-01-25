@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.github.btnguyen2k.queue.jclient.QueueResponse;
-import com.github.btnguyen2k.queue.jclient.impl.RestQueueClient;
-import com.github.btnguyen2k.queue.jclient.impl.RestQueueClientFactory;
+import com.github.ddth.queue.jclient.QueueResponse;
+import com.github.ddth.queue.jclient.impl.RestQueueClient;
+import com.github.ddth.queue.jclient.impl.RestQueueClientFactory;
 
 public class QndBenchmarkRestClient {
     private static AtomicLong NUM_SENT = new AtomicLong(0);

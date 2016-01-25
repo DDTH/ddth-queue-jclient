@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient.impl;
+package com.github.ddth.queue.jclient.impl;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
@@ -6,14 +6,14 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.btnguyen2k.queue.jclient.IQueueClient;
-import com.github.btnguyen2k.queue.jclient.QueueMessage;
-import com.github.btnguyen2k.queue.jclient.QueueResponse;
-import com.github.btnguyen2k.queue.jclient.QueueSizeResponse;
 import com.github.btnguyen2k.queueserver.thrift.TQueueMessage;
 import com.github.btnguyen2k.queueserver.thrift.TQueueResponse;
 import com.github.btnguyen2k.queueserver.thrift.TQueueService;
 import com.github.btnguyen2k.queueserver.thrift.TQueueSizeResponse;
+import com.github.ddth.queue.jclient.IQueueClient;
+import com.github.ddth.queue.jclient.QueueMessage;
+import com.github.ddth.queue.jclient.QueueResponse;
+import com.github.ddth.queue.jclient.QueueSizeResponse;
 import com.github.ddth.thriftpool.ThriftClientPool;
 
 /**

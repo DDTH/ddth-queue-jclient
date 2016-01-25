@@ -8,18 +8,18 @@
 		<version>2</version>
 	</parent>
 
-	<artifactId>queue-jclient</artifactId>
+	<artifactId>ddth-queue-jclient</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>queue-jclient</name>
-	<description>Java client for queue-server</description>
-	<url>https://github.com/btnguyen2k/queue-jclient</url>
+	<name>ddth-queue-jclient</name>
+	<description>Java client for queue-server (https://github.com/btnguyen2k/queue-server)</description>
+	<url>https://github.com/DDTH/ddth-queue-jclient</url>
 
 	<scm>
-		<url>git@github.com:btnguyen2k/queue-jclient</url>
-		<connection>scm:git:git@github.com:btnguyen2k/queue-jclient</connection>
-		<developerConnection>scm:git:git@github.com:btnguyen2k/queue-jclient</developerConnection>
+		<url>git@github.com:DDTH/ddth-queue-jclient</url>
+		<connection>scm:git:git@github.com:DDTH/ddth-queue-jclient</connection>
+		<developerConnection>scm:git:git@github.com:DDTH/ddth-queue-jclient</developerConnection>
 	</scm>
 	<developers>
 		<developer>
@@ -51,14 +51,20 @@
 
 		<dependency>
 			<groupId>com.github.ddth</groupId>
-			<artifactId>ddth-commons</artifactId>
-			<version>0.3.1</version>
+			<artifactId>ddth-commons-core</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ddth</groupId>
+			<artifactId>ddth-commons-serialization</artifactId>
+			<version>0.4.0</version>
+			<type>pom</type>
 		</dependency>
 
 		<dependency>
 			<groupId>com.github.ddth</groupId>
 			<artifactId>ddth-thriftpool</artifactId>
-			<version>0.2.1.3</version>
+			<version>0.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.thrift</groupId>
@@ -80,20 +86,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.3.2</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>org.jodd</groupId> <artifactId>jodd-http</artifactId> 
-			<version>3.6.5</version> </dependency> -->
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${version.jackson}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${version.jackson}</version>
 		</dependency>
 	</dependencies>
 

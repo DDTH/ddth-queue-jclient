@@ -1,13 +1,32 @@
-queue-jclient
-=============
+ddth-queue-jclient
+==================
 
 Java client for [https://github.com/btnguyen2k/queue-server](https://github.com/btnguyen2k/queue-server).
 
-## Release-notes ##
+Project home: [https://github.com/DDTH/ddth-queue-jclient](https://github.com/DDTH/ddth-queue-jclient).
 
-Latest release: `0.1.0`.
 
-See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+## License ##
+
+See [LICENSE.txt](LICENSE.txt) for details. Copyright (c) 2015-2016 Thanh Ba Nguyen.
+
+Third party libraries are distributed under their own license(s).
+
+
+## Installation ##
+
+Latest release: `0.1.1`, see [RELEASE-NOTES.md](RELEASE-NOTES.md).
+
+Maven dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.ddth</groupId>
+    <artifactId>ddth-queue-jclient</artifactId>
+    <version>0.1.1</version>
+</dependency>
+```
+
 
 ## Usage ##
 
@@ -53,9 +72,3 @@ QueueResponse response = queueClient.finish("secret", "queue_name", msg);
 // or, requeue the message to retry latter
 QueueResponse response = queueClient.requeue("secret", "queue_name", msg);
 ```
-
-## License ##
-
-See [LICENSE.txt](LICENSE.txt) for details. Copyright (c) 2015 btnguyen2k.
-
-Third party libraries are distributed under their own license(s).

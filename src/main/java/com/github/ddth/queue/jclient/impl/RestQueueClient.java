@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient.impl;
+package com.github.ddth.queue.jclient.impl;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -17,13 +17,13 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.btnguyen2k.queue.jclient.IQueueClient;
-import com.github.btnguyen2k.queue.jclient.QueueMessage;
-import com.github.btnguyen2k.queue.jclient.QueueResponse;
-import com.github.btnguyen2k.queue.jclient.QueueSizeResponse;
-import com.github.btnguyen2k.queue.jclient.utils.QueueClientUtils;
 import com.github.ddth.commons.utils.DPathUtils;
 import com.github.ddth.commons.utils.SerializationUtils;
+import com.github.ddth.queue.jclient.IQueueClient;
+import com.github.ddth.queue.jclient.QueueMessage;
+import com.github.ddth.queue.jclient.QueueResponse;
+import com.github.ddth.queue.jclient.QueueSizeResponse;
+import com.github.ddth.queue.jclient.utils.QueueClientUtils;
 
 /**
  * REST-implementation of {@link IQueueClient}.

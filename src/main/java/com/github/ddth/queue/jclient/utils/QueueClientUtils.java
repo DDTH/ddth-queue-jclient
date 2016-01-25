@@ -1,4 +1,4 @@
-package com.github.btnguyen2k.queue.jclient.utils;
+package com.github.ddth.queue.jclient.utils;
 
 import org.apache.commons.codec.binary.Base64;
 

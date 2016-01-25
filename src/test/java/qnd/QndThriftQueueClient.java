@@ -1,8 +1,8 @@
 package qnd;
 
-import com.github.btnguyen2k.queue.jclient.IQueueClient;
-import com.github.btnguyen2k.queue.jclient.QueueResponse;
-import com.github.btnguyen2k.queue.jclient.impl.ThriftQueueClient;
+import com.github.ddth.queue.jclient.IQueueClient;
+import com.github.ddth.queue.jclient.QueueResponse;
+import com.github.ddth.queue.jclient.impl.ThriftQueueClient;
 
 public class QndThriftQueueClient {
 

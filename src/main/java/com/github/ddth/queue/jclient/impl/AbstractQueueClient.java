@@ -1,6 +1,6 @@
-package com.github.btnguyen2k.queue.jclient.impl;
+package com.github.ddth.queue.jclient.impl;
 
-import com.github.btnguyen2k.queue.jclient.IQueueClient;
+import com.github.ddth.queue.jclient.IQueueClient;
 
 /**
  * Abstract implementation of {@link IQueueClient}.
